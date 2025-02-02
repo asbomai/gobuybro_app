@@ -32,7 +32,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',  # Allow localhost
     'localhost',  # Allow localhost
-    'gobuy_bro_app.onrender.com',  # Replace with your Render app URL
+    'gobuy-bro-app.onrender.com',  # Replace with your Render app URL
 ]
 # Application definition
 
