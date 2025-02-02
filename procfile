@@ -1,1 +1,1 @@
-web: gunicorn gobuy_bro.wsgi
+web: gunicorn gobuy_bro.wsgi --log-file -

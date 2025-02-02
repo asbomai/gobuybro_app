@@ -80,19 +80,17 @@ WSGI_APPLICATION = 'gobuy_bro.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-import os
-import dj_database_url
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# Cloudinary configuration
-cloudinary.config(
-    cloud_name=os.environ.get('dytquc7fv'),
-    api_key=os.environ.get('233336877797119'),
-    api_secret=os.environ.get('cMgxLEt1n7fXYvejDwSmsyRfnN0cMgxLEt1n7fXYvejDwSmsyRfnN0')
-)
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dytquc7fv',
+    'API_KEY': '233336877797119',
+    'API_SECRET': 'cMgxLEt1n7fXYvejDwSmsyRfnN0cMgxLEt1n7fXYvejDwSmsyRfnN0'
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary.storage.MediaCloudinaryStorage'
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -100,7 +98,6 @@ DATABASES = {
         conn_max_age=600  # Optional: Improves performance by reusing database connections
     )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
