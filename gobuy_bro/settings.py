@@ -32,7 +32,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',  # Allow localhost
     'localhost',  # Allow localhost
-    'gobuy-bro-app.onrender.com',  # Replace with your Render app URL
+    'gobuy_bro_app.onrender.com',  # Replace with your Render app URL
 ]
 # Application definition
 
@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ]
 
-ROOT_URLCONF = 'gobuy_bro.urls'
+ROOT_URLCONF = 'gobuy_bro_app.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'gobuy_bro.wsgi.application'
+WSGI_APPLICATION = 'gobuy_bro_app.wsgi.application'
 
 
 # Database
