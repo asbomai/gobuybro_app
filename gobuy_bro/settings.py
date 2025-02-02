@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ]
 
-ROOT_URLCONF = 'gobuy_bro_app.urls'
+ROOT_URLCONF = 'gobuy_bro.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +76,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'gobuy_bro_app.wsgi.application'
+WSGI_APPLICATION = 'gobuy_bro.wsgi.application'
 
 
 # Database
