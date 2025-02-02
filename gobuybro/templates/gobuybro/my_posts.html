@@ -1,0 +1,50 @@
+{% extends 'gobuybro/base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Post</title>
+    <link rel="stylesheet" href="{% static 'css/create_post.css' %}">
+</head>
+<body>
+    {% block content %}
+    <div class="form-container">
+        <h2>Edit Post</h2>
+
+        <!-- Display error messages -->
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li class="message {{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="styled-form">
+            {% csrf_token %}
+        
+            <div class="form-group">
+                {{ post_form.as_p }}
+            </div>
+        
+            <h3>Upload Images</h3>
+            {{ image_formset.management_form }}
+
+            <div class="image-upload-section">
+                {% for form in image_formset %}
+                    <div class="image-upload-form">
+                        {{ form.as_p }}
+                    </div>
+                {% endfor %}
+            </div>
+        
+            <button type="submit" class="submit-btn">Update Post</button>
+        </form>
+        
+    </div>
+    {% endblock %}
+</body>
+</html>

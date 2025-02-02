@@ -1,0 +1,185 @@
+{% extends 'gobuybro/base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate - Home</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {% block content %}
+    <div class="feed-container">
+        {% if posts %}
+            {% for post in posts %}
+            <div class="post">
+                <div class="post-header">
+                    <img src="{{ post.owner.profile.profile_photo.url|default:'path/to/default-image.png' }}" 
+                         alt="{{ post.owner.username }}'s Profile Picture" class="profile-pic">
+                    <div class="user-info">
+                        <p class="username">{{ post.owner.username }}</p>
+                        <p class="post-date">{{ post.created_at|date:"M d, Y" }}</p>
+                        <div class="Phone">
+                            <p>{{ user.profile.phone_number}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post-media">
+                    {% if post.video %}
+                        <div class="video-container">
+                            <video class="responsive-video" loop muted playsinline>
+                                <source src="{{ post.video.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="pause-symbol">⏸</div> <!-- Pause symbol -->
+                        </div>
+                    {% endif %}
+                    {% if post.images.all %}
+                    <div class="slider-container">
+                        <div class="slider">
+                            {% for image in post.images.all %}
+                            <div class="slide">
+                                <img src="{{ image.image.url }}" alt="Post Image" class="responsive-image">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <button class="prev" onclick="moveSlide(-1, {{ post.id }})">&#10094;</button>
+                        <button class="next" onclick="moveSlide(1, {{ post.id }})">&#10095;</button>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="post-details">
+                    <p class="post-title">{{ post.title }}</p>
+                    <p class="post-description">{{ post.description }}</p>
+                    <p class="post-location"><strong>Location:</strong> {{ post.location }}</p>
+                    <p><strong>Rent:</strong> {{ post.rent_currency }}</p>
+                    <p><strong>Purchase:</strong> {{ post.purchase_currency }}</p>
+                </div>
+
+                <div class="post-actions">
+                    <button class="like-button" data-post-id="{{ post.id }}">👍 Like (<span id="like-count-{{ post.id }}">{{ post.total_likes }}</span>)</button>
+                    <button class="dislike-button" data-post-id="{{ post.id }}">👎Unlike (<span id="dislike-count-{{ post.id }}">{{ post.total_dislikes }}</span>)</button>
+                    <button class="comment-toggle" onclick="toggleComments({{ post.id }})">💬Comments</button>
+                </div>
+
+                <div class="comment-section" id="comment-section-{{ post.id }}" style="display: none;">
+                    <h3>Comments</h3>
+                    <div id="comments-list">
+                        {% for comment in post.comments.all %}
+                            {% if not comment.parent %}
+                            <div class="comment">
+                                <p><strong>{{ comment.user.username }}:</strong> {{ comment.text }}</p>
+                                <button class="reply-button" data-comment-id="{{ comment.id }}">Reply</button>
+
+                                <!-- Nested Replies -->
+                                <div class="replies">
+                                    {% for reply in comment.replies.all %}
+                                    <div class="reply">
+                                        <p><strong>{{ reply.user.username }}:</strong> {{ reply.text }}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Reply Form -->
+                                <form class="reply-form" data-comment-id="{{ comment.id }}" style="display: none;">
+                                    {% csrf_token %}
+                                    <textarea name="text" rows="2" placeholder="Write a reply..."></textarea>
+                                    <button type="button" class="submit-reply">Reply</button>
+                                </form>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <form id="comment-form" data-post-id="{{ post.id }}">
+                        {% csrf_token %}
+                        <textarea name="text" placeholder="Add a comment..." rows="3"></textarea>
+                        <button type="button" class="submit-comment">Send</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-posts-message">No posts found matching your query.</p>
+        {% endif %}
+    </div>
+    
+    <script>
+          // Function to toggle comments visibility
+          function toggleComments(postId) {
+            var section = document.getElementById('comment-section-' + postId);
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('.responsive-video');
+
+        // Function to pause all videos except the one passed as an argument
+        function pauseOtherVideos(currentVideo) {
+            videos.forEach(video => {
+                if (video !== currentVideo && !video.paused) {
+                    video.pause();
+                    video.parentElement.classList.remove('paused'); // Hide pause symbol
+                }
+            });
+        }
+
+        // Autoplay and pause on click
+        videos.forEach(video => {
+            const videoContainer = video.parentElement;
+            const pauseSymbol = videoContainer.querySelector('.pause-symbol');
+
+            // Autoplay the video when it comes into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        pauseOtherVideos(video);
+                        video.play();
+                        videoContainer.classList.remove('paused'); // Hide pause symbol
+                    } else {
+                        video.pause();
+                        videoContainer.classList.remove('paused'); // Hide pause symbol
+                    }
+                });
+            }, { threshold: 0.5 }); // Adjust threshold as needed
+
+            observer.observe(video);
+
+            // Pause/play on click
+            videoContainer.addEventListener('click', () => {
+                if (video.paused) {
+                    pauseOtherVideos(video);
+                    video.play();
+                    videoContainer.classList.remove('paused'); // Hide pause symbol
+                } else {
+                    video.pause();
+                    videoContainer.classList.add('paused'); // Show pause symbol
+                }
+            });
+
+            // Add mute/unmute button
+            const muteButton = document.createElement('button');
+            muteButton.classList.add('mute-button');
+            muteButton.innerHTML = '🔇'; // Mute symbol
+            videoContainer.appendChild(muteButton);
+
+            // Toggle mute/unmute
+            muteButton.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent video pause when clicking mute button
+                video.muted = !video.muted;
+                muteButton.innerHTML = video.muted ? '🔇' : '🔊'; // Toggle symbol
+            });
+        });
+    });
+      
+    </script>
+    {% endblock %}
+</body>
+</html>

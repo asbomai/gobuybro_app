@@ -1,0 +1,53 @@
+{% extends 'gobuybro/base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    {% block content %}
+
+    <div class="dashboard-container">
+        {% if user.is_authenticated %}
+        <div class="dashboard-header">
+            <!-- Display the user's profile photo with consistent styling -->
+            <div class="profile-section">
+                <img src="{{ request.user.profile.profile_photo.url|default:'path/to/p-image.png' }}" 
+                     alt="{{ request.user.username }}'s Profile Picture" class="profile-pic">
+                     <a href="{% url 'update_profile' %}" class="change-picture-link">update Profile</a>
+
+                <h1>Welcome, {{ user.username }}!</h1>
+            </div>
+        </div>
+
+        <!-- User Details Section -->
+        <div class="dashboard-content">
+            <h2>Your Details:</h2>
+            
+            <ul class="user-details">
+                <li><strong>Username:</strong> {{ user.username }}</li>
+                <li><strong>Email:</strong> {{ user.email }}</li>
+                <li><strong>Joined:</strong> {{ user.date_joined|date:"D, M d Y" }}</li>
+                <li><strong>Business Name:</strong> {{ profile.business_name|default:"Not Provided" }}</li>
+                <li><strong>Business Address:</strong> {{ profile.business_address|default:"Not Provided" }}</li>
+                <li><strong>Phone Number:</strong> {{ profile.phone_number|default:"Not Provided" }}</li>
+            </ul>
+        </div>
+        <a href="{% url 'logout' %}" class="submit-btn">Logout</a><br>
+
+        {% else %}
+        <div class="dashboard-guest">
+            <h1>Welcome to Real Estate Dashboard</h1>
+            <p>Please <a href="{% url 'login' %}">log in</a> to access your dashboard.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    {% endblock %}
+</body>
+</html>

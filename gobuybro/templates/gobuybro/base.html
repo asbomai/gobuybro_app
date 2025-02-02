@@ -1,0 +1,245 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Real Estate{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <header class="header">
+        <a href="{% url 'home' %}">
+            <span class="circle">
+                <h6>GobuyBro</h6>
+            </span>
+        </a>
+        <!-- Search Bar -->
+    <form method="get" action="{% url 'home' %}" class="search-form">
+        <input type="text" name="q" placeholder="Search by location..." value="{{ request.GET.q|default:'' }}" class="search-bar">
+        <button type="submit" class="search-button">Search</button>
+    </form>
+        
+            {% if user.is_authenticated %}
+                <a href="{% url 'my_posts' %}">Post</a><br>
+                <a href="{% url 'dashboard' %}">Profile</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    <footer>
+        <strong>
+            <p>GobuyBro@A-tech-Innovation </p>
+
+        </strong>
+        <p>&copy; 2024 Real Estate Billing System</p>
+    </footer>
+
+
+    <script>
+            
+ document.addEventListener('DOMContentLoaded', () => {
+    const sliders = document.querySelectorAll('.slider-container');
+
+    sliders.forEach(sliderContainer => {
+        const slider = sliderContainer.querySelector('.slider');
+        const slides = slider.querySelectorAll('.slide');
+        const prevButton = sliderContainer.querySelector('.prev');
+        const nextButton = sliderContainer.querySelector('.next');
+        let currentIndex = 0;
+
+        const updateSlidePosition = () => {
+            slider.style.transform = `translateX(-${currentIndex * 100}%)`;
+        };
+
+        prevButton.addEventListener('click', () => {
+            currentIndex = (currentIndex > 0) ? currentIndex - 1 : slides.length - 1;
+            updateSlidePosition();
+        });
+
+        nextButton.addEventListener('click', () => {
+            currentIndex = (currentIndex < slides.length - 1) ? currentIndex + 1 : 0;
+            updateSlidePosition();
+        });
+
+        // Auto-slide functionality
+        setInterval(() => {
+            currentIndex = (currentIndex < slides.length - 1) ? currentIndex + 1 : 0;
+            updateSlidePosition();
+        }, 5000); // Change slide every 5 seconds
+    });
+});
+
+
+ 
+            document.addEventListener('DOMContentLoaded', function () {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                // CSRF Token Utility
+            function getCookie(name) {
+                let cookieValue = null;
+                const cookies = document.cookie.split(';');
+                for (let cookie of cookies) {
+                    cookie = cookie.trim();
+                    if (cookie.startsWith(name + '=')) {
+                        cookieValue = cookie.substring(name.length + 1);
+                        break;
+                    }
+                }
+                return cookieValue;
+            }
+        
+                function submitComment(postId, text, parentId = null) {
+                    fetch(`/api/posts/${postId}/comment/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrfToken,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: text, parent_id: parentId })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                alert('Comment added!');
+                                location.reload(); // Reload to show the updated comments
+                            } else {
+                                alert(data.message || 'Failed to add comment.');
+                            }
+                        })
+                        .catch(err => console.error('Error:', err));
+                }
+        
+                // Add a comment
+                document.querySelectorAll('.submit-comment').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const postId = this.closest('form').dataset.postId;
+                        const text = this.closest('form').querySelector('textarea[name="text"]').value;
+        
+                        if (text.trim() === "") {
+                            alert("Comment cannot be empty.");
+                            return;
+                        }
+                        submitComment(postId, text);
+                    });
+                });
+
+    // Toggle reply form visibility
+    document.querySelectorAll('.reply-button').forEach(button => {
+        button.addEventListener('click', function () {
+            const commentId = this.dataset.commentId;
+            const replyForm = document.querySelector(`.reply-form[data-comment-id="${commentId}"]`);
+            replyForm.style.display = replyForm.style.display === 'none' || !replyForm.style.display ? 'block' : 'none';
+        });
+    });
+
+    // Add a reply
+    document.querySelectorAll('.submit-reply').forEach(button => {
+        button.addEventListener('click', function () {
+            const commentId = this.closest('.reply-form').dataset.commentId;
+            const postId = document.querySelector('#comment-form').dataset.postId;
+            const text = this.closest('.reply-form').querySelector('textarea[name="text"]').value;
+
+            if (text.trim() === "") {
+                alert("Reply cannot be empty.");
+                return;
+            }
+            submitComment(postId, text, commentId);
+        });
+    });
+});
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        function handlePostAction(button, action) {
+            const postId = button.dataset.postId;
+
+            fetch(`/post/${postId}/${action}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.liked !== undefined || data.disliked !== undefined) {
+                        document.getElementById(`like-count-${postId}`).textContent = data.likes_count;
+                        document.getElementById(`dislike-count-${postId}`).textContent = data.dislikes_count;
+                    } else {
+                        alert(data.error || 'Action failed.');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', () => handlePostAction(button, 'like'));
+        });
+
+        document.querySelectorAll('.dislike-button').forEach(button => {
+            button.addEventListener('click', () => handlePostAction(button, 'dislike'));
+        });
+    });
+
+
+
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Toggle Share Options
+        document.querySelectorAll('.share-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const shareOptions = button.nextElementSibling;
+                shareOptions.style.display = shareOptions.style.display === 'none' ? 'block' : 'none';
+            });
+        });
+
+        // Copy Link to Clipboard
+        document.querySelectorAll('.copy-link').forEach(button => {
+            button.addEventListener('click', () => {
+                const postUrl = button.dataset.postUrl;
+                navigator.clipboard.writeText(postUrl).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy link: ', err);
+                });
+            });
+        });
+
+        // Check if Share API is Supported
+        if (navigator.share) {
+            document.querySelectorAll('.share-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const postUrl = button.dataset.postUrl;
+                    navigator.share({
+                        title: 'Check out this post!',
+                        text: 'I found this amazing post for you!',
+                        url: postUrl
+                    }).then(() => {
+                        console.log('Thanks for sharing!');
+                    }).catch(err => {
+                        console.error('Error sharing:', err);
+                    });
+                });
+            });
+        }
+    });
+
+
+        
+       
+
+      
+        
+    </script>
+    
+</body>
+</html>

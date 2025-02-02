@@ -1,0 +1,20 @@
+{% extends 'gobuybro/base.html' %}
+{% block tittle %} Upload Profile {% endblock %}
+
+{% block content %}
+
+<div class="auth-container">
+
+<h1>upload profile</h1>
+<form method="POST" enctype="multipart/form-data" class="auth-form">
+    <div class="auth-input">
+    {% csrf_token %}
+    {{ form.as_p }}
+    </div>
+    <button type="submit" class="submit-btn">upload</button>
+</form>
+
+</div>
+
+
+{% endblock %}
