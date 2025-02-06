@@ -9,8 +9,28 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+import os
 from dotenv import load_dotenv
-load_dotenv()
+
+
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET')
+)
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+
+import os
+from dotenv import load_dotenv
+import dj_database_url  # Helps with database URLs
+
+load_dotenv()  # Load .env file
 
 from pathlib import Path
 
@@ -31,7 +51,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',  # Allow localhost
     'localhost',  # Allow localhost
-    'gobuy-bro-app.onrender.com',  # Replace with your Render app URL
+    'real_estate.onrender.com',  # Replace with your Render app URL
 ]
 # Application definition
 
@@ -43,6 +63,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gobuybro',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -80,17 +102,7 @@ WSGI_APPLICATION = 'gobuy_bro.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dytquc7fv',
-    'API_KEY': '233336877797119',
-    'API_SECRET': 'cMgxLEt1n7fXYvejDwSmsyRfnN0cMgxLEt1n7fXYvejDwSmsyRfnN0'
-}
-
-DEFAULT_FILE_STORAGE = 'cloudinary.storage.MediaCloudinaryStorage'
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -98,6 +110,7 @@ DATABASES = {
         conn_max_age=600  # Optional: Improves performance by reusing database connections
     )
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -136,15 +149,20 @@ USE_TZ = True
 
 
 import os
+from pathlib import Path
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'  
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # Ensure static folder exists
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For deployment
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
