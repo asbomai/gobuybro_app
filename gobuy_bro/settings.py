@@ -51,7 +51,7 @@ DEBUG = False
 ALLOWED_HOSTS = [
     '127.0.0.1',  # Allow localhost
     'localhost',  # Allow localhost
-    'real_estate.onrender.com',  # Replace with your Render app URL
+    'https://gobuybro-app.onrender.com',  # Replace with your Render app URL
 ]
 # Application definition
 
