@@ -1,50 +1,132 @@
 {% extends 'gobuybro/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Post</title>
-    <link rel="stylesheet" href="{% static 'css/create_post.css' %}">
-</head>
-<body>
-    {% block content %}
-    <div class="form-container">
-        <h2>Edit Post</h2>
+{% block content %}
 
-        <!-- Display error messages -->
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="message {{ message.tags }}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+<h1 class="page-title">My Posts</h1>
+<a href="{% url 'post_create' %}" class="submit-btn">Create</a>
 
-        <form method="post" enctype="multipart/form-data" class="styled-form">
-            {% csrf_token %}
-        
-            <div class="form-group">
-                {{ post_form.as_p }}
+<!-- Feed -->
+<div class="feed-container">
+    {% for post in posts %}
+    <div class="post">
+        <div class="post-header">
+            <!-- Display profile photo of the post owner -->
+            {% if post.owner.profile and post.owner.profile.profile_photo %}
+                <img src="{{ post.owner.profile.profile_photo.url }}" 
+                     alt="{{ post.owner.username }}'s Profile Picture" class="profile-pic">
+            {% else %}
+                <img src="{% static 'images/default-profile.png' %}" alt="Default Profile Picture" class="profile-pic">
+            {% endif %}
+            <div>
+                <strong>{{ post.owner.username }}</strong>
+                <p>{{ post.created_at|date:"D, M d Y" }}</p>
             </div>
+        </div>
         
-            <h3>Upload Images</h3>
-            {{ image_formset.management_form }}
-
-            <div class="image-upload-section">
-                {% for form in image_formset %}
-                    <div class="image-upload-form">
-                        {{ form.as_p }}
+        <div class="post-media">
+            {% if post.video and post.video.url %}
+                <div class="video-container">
+                    <video class="instagram-video" muted playsinline loop>
+                        <source src="{{ post.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="pause-symbol">⏸</div>
+                    <button class="mute-button">🔇</button>
+                </div>
+            {% elif post.image and post.image.url %}
+                <img src="{{ post.image.url }}" alt="Post Image">
+            {% endif %}
+        </div>
+        
+        {% if post.images.exists %}
+            <div class="slider-container">
+                <div class="slider">
+                    {% for image in post.images.all %}
+                    <div class="slide">
+                        <img src="{{ image.image.url }}" alt="Post Image" class="responsive-image">
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+                <button class="prev" onclick="moveSlide(-1, {{ post.id }})">&#10094;</button>
+                <button class="next" onclick="moveSlide(1, {{ post.id }})">&#10095;</button>
             </div>
+        {% endif %}
         
-            <button type="submit" class="submit-btn">Update Post</button>
-        </form>
-        
+        <!-- Post actions -->
+        <div class="post-actions">
+            {% if post.id %}
+                <button onclick="location.href='{% url 'edit_post' post.id %}'">✏️ Edit</button>
+                <form action="{% url 'delete_post' post.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')">🗑️ Delete</button>
+                </form>
+            {% endif %}
+        </div>
+
+        <!-- Post details -->
+        <div class="post-details">
+            <p><strong>{{ post.title }}</strong></p>
+            <p>{{ post.description }}</p>
+            <p><strong>Location:</strong> {{ post.location }}</p>
+        </div>
     </div>
-    {% endblock %}
-</body>
-</html>
+    {% empty %}
+    <p>You have no posts yet.</p>
+    {% endfor %}
+</div>
+
+<!-- JavaScript for Instagram-like video behavior -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const videos = document.querySelectorAll('.instagram-video');
+
+        function pauseOtherVideos(currentVideo) {
+            videos.forEach(video => {
+                if (video !== currentVideo && !video.paused) {
+                    video.pause();
+                    video.parentElement.classList.remove('paused');
+                }
+            });
+        }
+
+        videos.forEach(video => {
+            const videoContainer = video.parentElement;
+            const pauseSymbol = videoContainer.querySelector('.pause-symbol');
+            const muteButton = videoContainer.querySelector('.mute-button');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        pauseOtherVideos(video);
+                        video.play();
+                        videoContainer.classList.remove('paused');
+                    } else {
+                        video.pause();
+                        videoContainer.classList.remove('paused');
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            observer.observe(video);
+
+            videoContainer.addEventListener('click', () => {
+                if (video.paused) {
+                    pauseOtherVideos(video);
+                    video.play();
+                    videoContainer.classList.remove('paused');
+                } else {
+                    video.pause();
+                    videoContainer.classList.add('paused');
+                }
+            });
+
+            muteButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                video.muted = !video.muted;
+                muteButton.innerHTML = video.muted ? '🔇' : '🔊';
+            });
+        });
+    });
+</script>
+{% endblock %}

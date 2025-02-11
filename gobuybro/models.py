@@ -6,6 +6,9 @@ from django.conf import settings
 from djmoney.models.fields import MoneyField
 from django.core.validators import RegexValidator
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.models
 
 class Post(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
