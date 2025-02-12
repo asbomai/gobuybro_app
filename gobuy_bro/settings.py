@@ -1,25 +1,22 @@
 import os
-import dj_database_url
-from pathlib import Path
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 from dotenv import load_dotenv
+import dj_database_url
+from pathlib import Path
 
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'production')
-
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'gobuybro-app.onrender.com']
+ALLOWED_HOSTS=['127.0.0.1', 'localhost', 'gobuybro-app.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://gobuybro-app.onrender.com']
 
-# DATABASE CONFIG
+# DATABASE
 DATABASES = {
     'default': dj_database_url.config(
         default=os.getenv('DATABASE_URL'),
@@ -27,22 +24,22 @@ DATABASES = {
     )
 }
 
-# STATIC FILES
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / "staticfiles"
-
-if not DEBUG:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    CLOUDINARY_STORAGE = {
-        'CLOUDINARY_URL': os.getenv('CLOUDINARY_URL')
-    }
-
-# CLOUDINARY CONFIG
+# CLOUDINARY CONFIGURATION
 cloudinary.config(
     cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME'),
     api_key=os.getenv('CLOUDINARY_API_KEY'),
     api_secret=os.getenv('CLOUDINARY_API_SECRET'),
 )
+
+# STORAGES
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 # INSTALLED APPS
 INSTALLED_APPS = [
@@ -52,10 +49,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'gobuybro',
+
+    'cloudinary_storage',  # This must be above cloudinary
     'cloudinary',
-    'cloudinary_storage',
+    'gobuybro',
 ]
+
+# STATIC & MEDIA FILES
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / "static"] if DEBUG else []
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = '/media/'
 
 # TEMPLATES
 TEMPLATES = [
@@ -77,7 +82,7 @@ TEMPLATES = [
 # MIDDLEWARE
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -88,23 +93,3 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'gobuy_bro.urls'
 WSGI_APPLICATION = 'gobuy_bro.wsgi.application'
-
-# LOGGING
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.FileHandler',
-            'filename': 'django_error.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-    },
-}

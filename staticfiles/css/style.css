@@ -143,7 +143,6 @@ body {
 
 .slide img {
     width: 100%;
-    border-radius: 8px;
 }
 
 button.prev, button.next {

@@ -41,7 +41,7 @@
                         <div class="slider">
                             {% for image in post.images.all %}
                             <div class="slide">
-                                <img src="{{ image.image.url }}" alt="Post Image" class="responsive-image">
+                                <img src="{{ image.image.url }}" alt="Post Image" class="responsive-image" style="height: 300px;">
                             </div>
                             {% endfor %}
                         </div>
